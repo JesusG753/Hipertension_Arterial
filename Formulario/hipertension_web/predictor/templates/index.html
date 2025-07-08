@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Riesgo de Hipertensión Arterial</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e6f0fa, #ffffff);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FFFFFF;
+            background-image: url('{% static "img/background.jpg" %}'); /* Ruta relativa a static/ */
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid transparent;
+            border-image: linear-gradient(to right, #4CAF50, #2196F3) 1;
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 8px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            max-width: 330px;
+            width: 90%;
+            margin-left: 0;      
+            margin-right: auto;
+        }
+        .form-group input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+            outline: none;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .radio-group label {
+            font-weight: normal;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .radio-group input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .radio-group input[type="radio"]:focus {
+            outline: none;
+            transform: scale(1.1);
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 6px;
+            display: none;
+        }
+        .buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .buttons button {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            color: white;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 0 10px;
+            font-size: 16px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+        .buttons button.clear {
+            background: linear-gradient(90deg, #f44336, #d32f2f);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+        .buttons button.email {
+            background: linear-gradient(90deg, #2196F3, #1976D2);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+        .buttons button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(90deg, #45a049, #388e3c);
+        }
+        .buttons button.clear:hover {
+            background: linear-gradient(90deg, #d32f2f, #b71c1c);
+        }
+        .buttons button.email:hover {
+            background: linear-gradient(90deg, #1976D2, #0d47a1);
+        }
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e3a8a;
+            box-shadow: 0 6px 16px rgba(46, 125, 50, 0.2);
+            border: 2px solid transparent;
+        }
+        .result.risk {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border-color: #ef4444;
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.2);
+        }
+        .result.no-risk {
+            background: linear-gradient(135deg, #e8f5e9, #d4edda);
+            border-color: #4CAF50;
+            box-shadow: 0 6px 16px rgba(46, 125, 50, 0.2);
+        }
+        #imc {
+            font-weight: 600;
+            color: #2e7d32;
+        }
+        
+        @media screen and (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group input {
+                width: 90%;
+                max-width: 330px;
+            }
+
+            .buttons {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                margin-top: 24px;
+            }
+
+            .buttons button {
+                width: 100%;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                transform: scale(0.9);
+                transform-origin: top center;
+                max-width: 100%;
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Predicción de Riesgo de Hipertensión Arterial</h1>
+
+        <form id="predictionForm" method="POST">
+            {% csrf_token %}
+            <h2>Información Personal</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="nombre_completo">Nombre y Apellido:</label>
+                    <input type="text" id="nombre_completo" name="nombre_completo" placeholder="Ejm: Juan Pérez" value="{% if form_data.nombre_completo %}{{ form_data.nombre_completo }}{% elif form_data.nombre or form_data.apellido %}{{ form_data.nombre }}{% if form_data.nombre and form_data.apellido %} {% endif %}{{ form_data.apellido }}{% endif %}" required>
+                </div>
+                <div class="form-group">
+                    <label for="correo">Correo Electrónico:</label>
+                    <input type="email" id="correo" name="correo" placeholder="Ejm: juan@gmail.com" value="{% if form_data.correo %}{{ form_data.correo }}{% endif %}" required>
+                </div>
+                <div class="form-group">
+                    <label for="edad">Edad (años):</label>
+                    <input type="number" id="edad" name="edad" min="15" max="100" step="1" placeholder="Ejm: 35 (15 - 100)" value="{% if form_data.edad %}{{ form_data.edad }}{% endif %}" required>
+                    <span class="error-message" id="edad-error"></span>
+                </div>
+                <div class="form-group">
+                    <label>Sexo:</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="sexo" value="2" {% if form_data.sexo == '2' %}checked{% endif %} required>
+                            Femenino
+                        </label>
+                        <label>
+                            <input type="radio" name="sexo" value="1" {% if form_data.sexo == '1' %}checked{% endif %} required>
+                            Masculino
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="peso">Peso (kg):</label>
+                    <input type="number" id="peso" name="peso" min="31" max="170" step="0.1" placeholder="Ejm: 70.5 (31 - 170)" value="{% if form_data.peso %}{{ form_data.peso }}{% endif %}" required>
+                    <span class="error-message" id="peso-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="estatura">Estatura (cm):</label>
+                    <input type="number" id="estatura" name="estatura" min="110" max="195" step="0.1" placeholder="Ejm: 165.0 (110 - 195)" value="{% if form_data.estatura %}{{ form_data.estatura }}{% endif %}" required>
+                    <span class="error-message" id="estatura-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="imc">IMC Calculado (kg/m²):</label>
+                    <span id="imc">0</span>
+                </div>
+            </div>
+
+            <h2>Mediciones Clínicas</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="tension_arterial">Tensión Arterial (mmHg):</label>
+                    <input type="number" id="tension_arterial" name="tension_arterial" min="75" max="205" step="0.1" placeholder="Ejm: 120.0 (75 - 205)" value="{% if form_data.tension_arterial %}{{ form_data.tension_arterial }}{% endif %}" required>
+                    <span class="error-message" id="tension_arterial-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="medida_cintura">Medida de Cintura (cm):</label>
+                    <input type="number" id="medida_cintura" name="medida_cintura" min="50" max="195" step="0.1" placeholder="Ejm: 85.0 (50 - 195)" value="{% if form_data.medida_cintura %}{{ form_data.medida_cintura }}{% endif %}" required>
+                    <span class="error-message" id="medida_cintura-error"></span>
+                </div>
+                <div class="form-group">
+                    <label>Nivel de Actividad Física:</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="nivel_actividad" value="1" {% if form_data.nivel_actividad == '1' %}checked{% endif %} required>
+                            Muy Baja
+                        </label>
+                        <label>
+                            <input type="radio" name="nivel_actividad" value="2" {% if form_data.nivel_actividad == '2' %}checked{% endif %} required>
+                            Baja
+                        </label>
+                        <label>
+                            <input type="radio" name="nivel_actividad" value="3" {% if form_data.nivel_actividad == '3' %}checked{% endif %} required>
+                            Moderada
+                        </label>
+                        <label>
+                            <input type="radio" name="nivel_actividad" value="4" {% if form_data.nivel_actividad == '4' %}checked{% endif %} required>
+                            Alta
+                        </label>
+                        <label>
+                            <input type="radio" name="nivel_actividad" value="5" {% if form_data.nivel_actividad == '5' %}checked{% endif %} required>
+                            Muy Alta
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="sueno_horas">Horas de Sueño:</label>
+                    <input type="number" id="sueno_horas" name="sueno_horas" min="1" max="9" step="1" placeholder="Ejm: 7 (1 - 9)" value="{% if form_data.sueno_horas %}{{ form_data.sueno_horas }}{% endif %}" required>
+                    <span class="error-message" id="sueno_horas-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="valor_hemoglobina_glucosilada">Hemoglobina Glucosilada (%):</label>
+                    <input type="number" id="valor_hemoglobina_glucosilada" name="valor_hemoglobina_glucosilada" min="3" max="15" step="0.001" placeholder="Ejm: 5.7 (3 - 15)" value="{% if form_data.valor_hemoglobina_glucosilada %}{{ form_data.valor_hemoglobina_glucosilada }}{% endif %}" required>
+                    <span class="error-message" id="valor_hemoglobina_glucosilada-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="valor_insulina">Insulina (µU/mL):</label>
+                    <input type="number" id="valor_insulina" name="valor_insulina" min="0.5" max="270" step="0.001" placeholder="Ejm: 15.0 (0.5 - 270)" value="{% if form_data.valor_insulina %}{{ form_data.valor_insulina }}{% endif %}" required>
+                    <span class="error-message" id="valor_insulina-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="resultado_glucosa_promedio">Glucosa Promedio (mg/dL):</label>
+                    <input type="number" id="resultado_glucosa_promedio" name="resultado_glucosa_promedio" min="60" max="360" step="0.001" placeholder="Ejm: 100.0 (60 - 360)" value="{% if form_data.resultado_glucosa_promedio %}{{ form_data.resultado_glucosa_promedio }}{% endif %}" required>
+                    <span class="error-message" id="resultado_glucosa_promedio-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="concentracion_hemoglobina">Concentración de Hemoglobina (g/dL):</label>
+                    <input type="number" id="concentracion_hemoglobina" name="concentracion_hemoglobina" min="4" max="22" step="0.001" placeholder="Ejm: 13.5 (4 - 22)" value="{% if form_data.concentracion_hemoglobina %}{{ form_data.concentracion_hemoglobina }}{% endif %}" required>
+                    <span class="error-message" id="concentracion_hemoglobina-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="valor_colesterol_ldl">Colesterol LDL (mg/dL):</label>
+                    <input type="number" id="valor_colesterol_ldl" name="valor_colesterol_ldl" min="10" max="290" step="0.001" placeholder="Ejm: 110.0 (10 - 290)" value="{% if form_data.valor_colesterol_ldl %}{{ form_data.valor_colesterol_ldl }}{% endif %}" required>
+                    <span class="error-message" id="valor_colesterol_ldl-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="valor_trigliceridos">Triglicéridos (mg/dL):</label>
+                    <input type="number" id="valor_trigliceridos" name="valor_trigliceridos" min="10" max="1400" step="0.001" placeholder="Ejm: 150.0 (10 - 1400)" value="{% if form_data.valor_trigliceridos %}{{ form_data.valor_trigliceridos }}{% endif %}" required>
+                    <span class="error-message" id="valor_trigliceridos-error"></span>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button type="submit">Predecir</button>
+                <button type="button" class="email" onclick="sendReport()">Enviar Reporte</button>
+                <button type="button" class="clear" onclick="clearForm()">Limpiar</button>
+            </div>
+        </form>
+
+        {% if result %}
+        <div class="result {% if result.prediction == 'Con riesgo' %}risk{% else %}no-risk{% endif %}">
+            Resultado: El paciente {% if result.prediction == 'Con riesgo' %}presenta{% else %}no presenta{% endif %} riesgo de Hipertensión Arterial
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function updateIMC() {
+            const peso = parseFloat(document.getElementById('peso').value) || 0;
+            const estatura = parseFloat(document.getElementById('estatura').value) || 0;
+            const imc = estatura > 0 ? (peso / ((estatura / 100) * (estatura / 100))).toFixed(2) : 0;
+            document.getElementById('imc').textContent = imc;
+        }
+
+        function clearForm() {
+            fetch('{% url "clear_session" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}),
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('predictionForm').reset();
+                    document.getElementById('imc').textContent = '0';
+                    const resultDiv = document.querySelector('.result');
+                    if (resultDiv) {
+                        resultDiv.remove();
+                    }
+                    document.querySelectorAll('.error-message').forEach(span => {
+                        span.style.display = 'none';
+                        span.textContent = '';
+                    });
+                    window.location.href = '/?fresh=true';
+                } else {
+                    console.error('Error al limpiar la sesión');
+                    alert('Error al limpiar el formulario. Intenta de nuevo.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al limpiar el formulario: ' + error.message);
+            });
+        }
+
+        function sendReport() {
+            const email = document.getElementById('correo').value;
+            const nombre_completo = document.getElementById('nombre_completo').value;
+            if (!email || !nombre_completo) {
+                alert('Por favor, ingrese un correo electrónico y el nombre completo en el formulario.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('nombre_completo', nombre_completo);
+
+            fetch('{% url "send_report" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'ngrok-skip-browser-warning': 'true'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    alert(result.message);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            })
+            .catch(error => {
+                alert('Error al enviar el reporte: ' + error.message);
+            });
+        }
+
+        function validateRange(input) {
+            const id = input.id;
+            const value = parseFloat(input.value);
+            const min = parseFloat(input.min);
+            const max = parseFloat(input.max);
+            const errorSpan = document.getElementById(`${id}-error`);
+
+            if (isNaN(value) || value < min || value > max) {
+                errorSpan.textContent = `Valor fuera de rango: debe estar entre ${min} y ${max}`;
+                errorSpan.style.display = 'block';
+            } else {
+                errorSpan.textContent = '';
+                errorSpan.style.display = 'none';
+            }
+        }
+
+        document.querySelectorAll('#peso, #estatura').forEach(input => {
+            input.addEventListener('input', () => {
+                updateIMC();
+                validateRange(input);
+            });
+        });
+
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            if (input.id !== 'peso' && input.id !== 'estatura') {
+                input.addEventListener('input', () => validateRange(input));
+            }
+        });
+
+        updateIMC();
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            if (input.value) {
+                validateRange(input);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const prediccion = "{{ result.prediction|default:'' }}";
+            if (prediccion === "Con riesgo") {
+                alert("Predicción: El paciente presenta riesgo de Hipertensión Arterial");
+            } else if (prediccion === "Sin riesgo") {
+                alert("Predicción: El paciente NO presenta riesgo de Hipertensión Arterial");
+            }
+        });
+    </script>
+</body>
+</html>
