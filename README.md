@@ -6,6 +6,7 @@ La carpeta ML contiene 2 archivos .ipynb, Python_Balanceo_Dataset, en donde se t
 
 # Formulario
 En la carpeta Formulario se encuentra la aplicación hecha con Django, llamado hipertension_web, el cual se ejecuta con el API ya funcionando, mediante consola, llamando desde /Formulario/hipertension_web con el comando python manage.py runserver
+El formulario requiere installar las librerías request, Django y reportlab
 
 # Importante
 Para la implementación de la opción "enviar reporte por correo" del formulario funcione, requiere un correo y una contraseña de aplicación asociada en /Formulario/hipertension_web/hipertension_web/settings.py en las líneas EMAIL_HOST_USER y EMAIL_HOST_PASSWORD respectivamente.
